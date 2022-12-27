@@ -10,7 +10,7 @@
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal",
-            "args": ["inputfiles/basis_vDZP_ORCA.txt"],
+            "args": ["inputfiles/basis_vDZP_ORCA.txt", "62"],
             "justMyCode": true
         }
     ]
