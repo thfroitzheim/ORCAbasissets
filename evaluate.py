@@ -37,44 +37,62 @@ for i in range(0,len(lines)):
         k=k+1
 
 k=0
+l=0
+bf = []
 exponents=[]
 coefficients=[]
 # go through all entries in the dictionary and read the basis functions
-for i in range(0,len(pesdict["symb"])):
+for i in range(1,len(pesdict["symb"])):
     exptmp=[]
     coefftmp=[]
+    bfdict={"lnpr":[],"angmom":[]} # dictionary for the basis functions
     for j in range(pesdict["startline"][i],pesdict["endline"][i]):
         pesdict["nbf"].append(0)
         pesdict["npr"].append(0)
         if "S" in lines[j].strip():
-            pesdict["nbf"][k]=pesdict["nbf"][k]+1
-            nprs=int(lines[j].strip().split()[1])
-            pesdict["npr"][k]=pesdict["npr"][k]+nprs
-            for m in range(j+1,j+nprs+1):
+            bfdict["angmom"].append("S")
+            bfdict["lnpr"].append(int(lines[j].strip().split()[1]))
+            print(bfdict["angmom"][0],bfdict["lnpr"][0])
+            pesdict["nbf"][i]=pesdict["nbf"][i]+1
+            pesdict["npr"][i]=pesdict["npr"][i]+bfdict["lnpr"][l]
+            for m in range(j+1,j+bfdict["lnpr"][l]+1):
                 exptmp.append(lines[m].strip().split()[1])
                 coefftmp.append(lines[m].strip().split()[2])
             print(coefftmp)
+            l+=1
         if "P" in lines[j].strip():
+            bfdict["angmom"].append("P")
+            bfdict["lnpr"].append(int(lines[j].strip().split()[1]))
+            print(bfdict["angmom"][0],bfdict["lnpr"][0])
             pesdict["nbf"][k]=pesdict["nbf"][k]+1
-            nprs=int(lines[j].strip().split()[1])
-            pesdict["npr"][k]=pesdict["npr"][k]+nprs
-            for m in range(j+1,j+nprs+1):
+            pesdict["npr"][k]=pesdict["npr"][k]+bfdict["lnpr"][l]
+            for m in range(j+1,j+bfdict["lnpr"][l]+1):
                 exptmp.append(lines[m].strip().split()[1])
                 coefftmp.append(lines[m].strip().split()[2])
             print(coefftmp)
         if "D" in lines[j].strip():
+            bfdict["angmom"].append("D")
+            bfdict["lnpr"].append(int(lines[j].strip().split()[1]))
+            print(bfdict["angmom"][0],bfdict["lnpr"][0])
             pesdict["nbf"][k]=pesdict["nbf"][k]+1
-            nprs=int(lines[j].strip().split()[1])
-            pesdict["npr"][k]=pesdict["npr"][k]+nprs
-            for m in range(j+1,j+nprs+1):
-                exptmp.append(lines[j+m].strip().split()[1])
-                coefftmp.append(lines[j+m].strip().split()[2])
+            pesdict["npr"][k]=pesdict["npr"][k]+bfdict["lnpr"][l]
+            for m in range(j+1,j+bfdict["lnpr"][l]+1):
+                exptmp.append(lines[m].strip().split()[1])
+                coefftmp.append(lines[m].strip().split()[2])
             print(coefftmp)
         print(lines[j].strip())
-    print(pesdict["symb"][i],pesdict["numb"][i],pesdict["nbf"][k],pesdict["npr"][k])
+
+    # Development printouts
+    print(pesdict["symb"][i],pesdict["numb"][i],pesdict["nbf"][i],pesdict["npr"][i])
+    #######################
     exponents.append(exptmp)
     coefficients.append(coefftmp)
+    bf.append(bfdict)
+
+    # Development printouts
+    print(bf[k])
     print(exponents[k])
     print(coefficients[k])
+    #######################
+
     k=k+1
-    exit()
