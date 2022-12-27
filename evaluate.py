@@ -50,14 +50,13 @@ for i in range(0,len(pesdict["symb"])):
         if "S" in lines[j].strip():
             bfdict["angmom"].append("S")
             bfdict["lnpr"].append(int(lines[j].strip().split()[1]))
-            # increase number of basis functions "nbf" by 1 and number of primitives "npr" by the number of primitives in the current basis function
             pesdict["nbf"][i]=pesdict["nbf"][i]+1
             pesdict["npr"][i]=pesdict["npr"][i]+bfdict["lnpr"][l]
             for m in range(j+1,j+bfdict["lnpr"][l]+1):
                 exptmp.append(lines[m].strip().split()[1])
                 coefftmp.append(lines[m].strip().split()[2])
             l+=1
-        if "P" in lines[j].strip():
+        elif "P" in lines[j].strip():
             bfdict["angmom"].append("P")
             bfdict["lnpr"].append(int(lines[j].strip().split()[1]))
             pesdict["nbf"][i]=pesdict["nbf"][i]+1
@@ -66,7 +65,7 @@ for i in range(0,len(pesdict["symb"])):
                 exptmp.append(lines[m].strip().split()[1])
                 coefftmp.append(lines[m].strip().split()[2])
             l+=1
-        if "D" in lines[j].strip():
+        elif "D" in lines[j].strip():
             bfdict["angmom"].append("D")
             bfdict["lnpr"].append(int(lines[j].strip().split()[1]))
             pesdict["nbf"][i]=pesdict["nbf"][i]+1
@@ -75,6 +74,20 @@ for i in range(0,len(pesdict["symb"])):
                 exptmp.append(lines[m].strip().split()[1])
                 coefftmp.append(lines[m].strip().split()[2])
             l+=1
+        elif "F" in lines[j].strip():
+            bfdict["angmom"].append("F")
+            bfdict["lnpr"].append(int(lines[j].strip().split()[1]))
+            pesdict["nbf"][i]=pesdict["nbf"][i]+1
+            pesdict["npr"][i]=pesdict["npr"][i]+bfdict["lnpr"][l]
+            for m in range(j+1,j+bfdict["lnpr"][l]+1):
+                exptmp.append(lines[m].strip().split()[1])
+                coefftmp.append(lines[m].strip().split()[2])
+            l+=1
+        elif "G" in lines[j].strip():
+            print("No support of F or higher functions.")
+            exit()
+        elif "end" in lines[j].strip():
+            break
 
     # Development printouts
     print(pesdict["symb"][i],pesdict["numb"][i],pesdict["nbf"][i],pesdict["npr"][i])
