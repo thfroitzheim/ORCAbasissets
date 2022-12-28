@@ -2,6 +2,7 @@
 
 import sys
 from src.readin import orcaformat
+from src.writebasis import orcabasissetcode
 
 def print_help():
     print("Usage: python3 evaluate.py <input file>")
@@ -76,3 +77,6 @@ for i in range(0,basis["nbf"][desiredelem-1]):
         print("    "+str(basis["exponents"][desiredelem-1][k]))
         print("    "+str(basis["coefficients"][desiredelem-1][k]))
         k+=1
+
+
+orcabasissetcode(basis)

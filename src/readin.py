@@ -12,7 +12,7 @@ def orcaformat(f):
         elif el.number >= 87:
             break
         pesdict["symb"].append(el.symbol)
-        pesdict["numb"].append(el.number)
+        pesdict["numb"].append(int(el.number))
 
     # read the file
     lines = f.readlines()
@@ -58,8 +58,8 @@ def orcaformat(f):
             pesdict["nbf"][i]=pesdict["nbf"][i]+1
             pesdict["npr"][i]=pesdict["npr"][i]+bfdict["lnpr"][l]
             for m in range(j+1,j+bfdict["lnpr"][l]+1):
-                exptmp.append(lines[m].strip().split()[1])
-                coefftmp.append(lines[m].strip().split()[2])
+                exptmp.append(float(lines[m].strip().split()[1]))
+                coefftmp.append(float(lines[m].strip().split()[2]))
             l+=1
 
         # Development printouts
