@@ -1,7 +1,7 @@
 #!/bin/python3
 
 import argparse
-from src.readin import orcaformat
+from src.readin import orcabasisformat,orcaecpformat
 from src.writebasis import orcabasissetcode
 
 def printbasis(basis,desiredelem):
@@ -80,8 +80,21 @@ if basismode:
     # basis is a dictionary with the following keys and values:
     # symb: list of the symbols of the elements
     # numb: list of the atomic numbers of the element
-    basis = orcaformat(file)
+    basis = orcabasisformat(file)
     if args.verbose:
         printbasis(basis,desiredelem)
 
     orcabasissetcode(basis)
+
+elif ecpmode:
+    # read the file
+    # ecp is a dictionary with the following keys and values:
+    # symb: list of the symbols of the elements
+    # numb: list of the atomic numbers of the element
+    ecp = orcaecpformat(file)
+    #if args.verbose:
+    #    printecp(ecp,desiredelem)
+
+else:
+    print("Something went wrong.")
+    exit()

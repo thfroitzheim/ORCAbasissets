@@ -3,7 +3,7 @@
 # This script reads a Gaussian input file and extracts the basis set.
 import periodictable as pt
 
-def orcaformat(f):
+def orcabasisformat(f):
     # create a dictionary of the elements
     pesdict={"symb":[],"numb":[],"startline":[],"endline":[],"nbf":[],"npr":[]}
     for el in pt.elements:
@@ -88,3 +88,7 @@ def orcaformat(f):
         #end of iteration
 
     return basisset
+
+def orcaecpformat(f):
+    print("ECP mode not yet implemented.")
+    exit()
