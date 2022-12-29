@@ -1,4 +1,4 @@
-import sys
+import os
 
 # dictionary for relationship between angular momenta in letters ("S","P","D","F") and numbers (0,1,2,3)
 angmomdict={"S":0,"P":1,"D":2,"F":3}
@@ -6,6 +6,14 @@ angmomdict={"S":0,"P":1,"D":2,"F":3}
 def orcabasissetcode(bas):
     # Write the basis set in the format of the ORCA input file
     # The input is a dictionary with the following keys and values:
+    path = "output"
+    # Check whether the specified path exists or not
+    isExist = os.path.exists(path)
+    if not isExist:
+       # Create a new directory because it does not exist
+       os.makedirs(path)
+       print("Output directory was created!")
+
 
     ofile = open("output/basis_orcasource.txt","w")
     for i in range(0,len(bas["symb"])):
