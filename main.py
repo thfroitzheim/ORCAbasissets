@@ -23,6 +23,31 @@ def printbasis(basis,desiredelem):
             print("    "+str(basis["coefficients"][desiredelem-1][k]))
             k+=1
 
+def printecp(ecp,desiredelem):
+    # print only the full basis function for the desired element
+    print(ecp["numb"][0])
+    if ecp["numb"][0] > desiredelem:
+        print("The element of interest is not treated with ECP.")
+        exit()
+    desiredelem = desiredelem - ecp["numb"][0] # subtract elements treated without ECP
+    print("Element of interest:")
+    print("  Symbol: "+ecp["symb"][desiredelem])
+    print("Maximum ang. momentum and n_core " + str(ecp["lmax"][desiredelem]) + " " + str(ecp["ncore"][desiredelem]))
+    print("The number of ECP functions for the desired element is:")
+    print(ecp["nbf"][desiredelem])
+    print("The number of primitives for the desired element is:")
+    print(ecp["npr"][desiredelem])
+    print("The ECP functions are:")
+    k=0
+    for i in range(0,ecp["nbf"][desiredelem]):
+        print("ECP function "+str(i+1)+":")
+        print("  Angular momentum: "+ecp["angmom"][desiredelem][i])
+        print("  Number of primitives: "+str(ecp["lnpr"][desiredelem][i]))
+        print("  Exponents and coefficients:")
+        for j in range(0,ecp["lnpr"][desiredelem][i]):
+            print("    " + str(ecp["exponents"][desiredelem][k]) +" "+ str(ecp["coefficients"][desiredelem][k]) +" "+ str(ecp["ecpnfactor"][desiredelem][k]))
+            k+=1
+
 basismode = False
 ecpmode = False
 
@@ -92,8 +117,10 @@ elif ecpmode:
     # symb: list of the symbols of the elements
     # numb: list of the atomic numbers of the element
     ecp = orcaecpformat(file)
-    #if args.verbose:
-    #    printecp(ecp,desiredelem)
+    if args.verbose:
+        printecp(ecp,desiredelem)
+    print("ECP mode WRITING not implemented yet.")
+    exit()
 
 else:
     print("Something went wrong.")

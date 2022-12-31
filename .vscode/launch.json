@@ -10,7 +10,7 @@
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal",
-            "args": ["--ifile", "inputfiles/basis_vDZP_ORCA.txt", "--element", "62", "-v"],
+            "args": ["--ifile", "inputfiles/ecp_vDZP_ORCA.txt", "--element", "62", "-v", "--ecpmode"],
             "justMyCode": true
         }
     ]
