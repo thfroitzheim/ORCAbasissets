@@ -2,7 +2,7 @@
 
 import argparse
 from src.readin import orcabasisformat,orcaecpformat
-from src.writebasis import orcabasissetcode
+from src.writebasis import orcabasissetcode,orcaecpcode
 
 def printbasis(basis,desiredelem):
     # print only the full basis function for the desired element
@@ -119,9 +119,8 @@ elif ecpmode:
     ecp = orcaecpformat(file)
     if args.verbose:
         printecp(ecp,desiredelem)
-    print("ECP mode WRITING not implemented yet.")
-    exit()
 
+    orcaecpcode(ecp)
 else:
     print("Something went wrong.")
     exit()
