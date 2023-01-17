@@ -104,7 +104,6 @@ def orcaecpformat(f):
             break
         ecpdict["symb"].append(el.symbol)
         ecpdict["numb"].append(int(el.number))
-    print("ECP mode not yet implemented.")
 
     # read the file
     for i in range(0,len(lines)):
