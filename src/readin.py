@@ -47,7 +47,7 @@ def orcabasisformat(f):
             elif "F" in lines[j].strip():
                 bfdict["angmom"].append("F")
             elif "G" in lines[j].strip():
-                print("No support of F or higher functions.")
+                print("No support of G or higher functions.")
                 exit()
             elif "end" in lines[j].strip():
                 break
