@@ -5,7 +5,7 @@ This program processes basis sets and ECPs.
 
 import argparse
 from src.readin import orcabasisformat, orcaecpformat
-from src.writebasis import orcabasissetcode, orcaecpcode
+from src.writebasis import orcabasissetcode, orcaecpcode, xtb_tblite_format_basis
 
 
 def printbasis(basis, desiredelem):
@@ -99,6 +99,14 @@ parser.add_argument(
     default=False,
 )
 parser.add_argument(
+    "--format",
+    type=str,
+    nargs=1,
+    help="the format of the basis set",
+    default="orca",
+    required=False,
+)
+parser.add_argument(
     "-v", "--verbose", action="store_true", help="use this flag for extreme output"
 )
 
@@ -151,7 +159,15 @@ if basismode:
     if args.verbose:
         printbasis(basis, desiredelem)
 
-    orcabasissetcode(basis)
+    print("The format of the basis set is:")
+    print(args.format[0])
+    if args.format[0] == "orca":
+        orcabasissetcode(basis)
+    elif args.format[0] == "xtb":
+        xtb_tblite_format_basis(basis)
+    else:
+        print("Format not supported.")
+        exit()
 
 elif ecpmode:
     # read the file
@@ -162,7 +178,12 @@ elif ecpmode:
     if args.verbose:
         printecp(ecp, desiredelem)
 
-    orcaecpcode(ecp)
+    # if args.format not orca
+    if args.format == "orca":
+        orcaecpcode(ecp)
+    else:
+        print("Format not supported.")
+        exit()
 else:
     print("Something went wrong.")
     exit()
