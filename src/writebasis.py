@@ -1,3 +1,8 @@
+'''
+This module contains functions to write the basis set in the format of
+different quantum chemistry programs.
+'''
+
 import os
 
 # dictionary for relationship between angular momenta
@@ -6,6 +11,9 @@ angmomdict = {"S": 0, "P": 1, "D": 2, "F": 3, "G": 4, "H": 5, "I": 6}
 
 
 def orcabasissetcode(bas):
+    '''
+    Write the basis set in the format of the ORCA input file
+    '''
     # Write the basis set in the format of the ORCA input file
     # The input is a dictionary with the following keys and values:
     path = "output"
@@ -16,7 +24,7 @@ def orcabasissetcode(bas):
         os.makedirs(path)
         print("Output directory was created!")
 
-    ofile = open("output/basis_orcasource.txt", "w")
+    ofile = open("output/basis_orcasource.txt", "w", encoding="utf-8")
     for i in range(0, len(bas["symb"])):
         l = 0
         ofile.write("  // --------------------------------------------------------\n")
@@ -43,7 +51,8 @@ def orcabasissetcode(bas):
             )
             for k in range(0, bas["lnpr"][i][j]):
                 ofile.write(
-                    "  BG[{0:3d}][{1:3d}].a[{2:2d}] ={3:25.10f};   BG[{0:3d}][{1:3d}].d[{2:2d}] ={4:25.10f};\n".format(
+                    "  BG[{0:3d}][{1:3d}].a[{2:2d}] ={3:25.10f};   \
+BG[{0:3d}][{1:3d}].d[{2:2d}] ={4:25.10f};\n".format(
                         bas["numb"][i],
                         j,
                         k,
@@ -57,6 +66,9 @@ def orcabasissetcode(bas):
 
 
 def orcaecpcode(ecp):
+    '''
+    Write the ECP in the format of the ORCA input file
+    '''
     # Write the ECP in the format of the ORCA input file
     # The input is a dictionary with the following keys and values:
     path = "output"
@@ -67,7 +79,7 @@ def orcaecpcode(ecp):
         os.makedirs(path)
         print("Output directory was created!")
 
-    ofile = open("output/ecp_orcasource.txt", "w")
+    ofile = open("output/ecp_orcasource.txt", "w", encoding="utf-8")
     for i in range(0, len(ecp["symb"])):
         l = 0
         ofile.write("  // --------------------------------------------------------\n")
@@ -116,3 +128,17 @@ all_ecpname, all_comment, all_citation, all_source );\n".format(
                 )
                 l += 1
         ofile.write("\n\n")
+
+
+def xtb_tblite_format_basis(bas):
+    '''
+    Write the basis set in the format of the xtb tblite file
+    '''
+    path = "output"
+    isExist = os.path.exists(path)
+    if not isExist:
+        # Create a new directory because it does not exist
+        os.makedirs(path)
+        print("Output directory was created!")
+
+    ofile = open("output/basis_xtbsource.txt", "w", encoding="utf-8")

@@ -1,4 +1,7 @@
-#!/bin/python3
+#!/usr/bin/env python3
+'''
+This program processes basis sets and ECPs.
+'''
 
 import argparse
 from src.readin import orcabasisformat, orcaecpformat
@@ -6,6 +9,9 @@ from src.writebasis import orcabasissetcode, orcaecpcode
 
 
 def printbasis(basis, desiredelem):
+    '''
+    Print the basis set to the screen in a proprietary format.
+    '''
     # print only the full basis function for the desired element
     print("The number basis functions for the desired element is:")
     print(basis["nbf"][desiredelem - 1])
@@ -26,6 +32,9 @@ def printbasis(basis, desiredelem):
 
 
 def printecp(ecp, desiredelem):
+    '''
+    Print the ECP to the screen in a proprietary format.
+    '''
     # print only the full basis function for the desired element
     print(ecp["numb"][0])
     if ecp["numb"][0] > desiredelem:
@@ -62,10 +71,6 @@ def printecp(ecp, desiredelem):
             )
             k += 1
 
-
-basismode = False
-ecpmode = False
-
 # check for command line arguments based on argparse
 parser = argparse.ArgumentParser(
     description="Read in a Gaussian input file and extract the basis set."
@@ -85,11 +90,13 @@ parser.add_argument(
     "--ecpmode",
     action="store_true",
     help="use this flag if the input file contains an ECP",
+    default=False,
 )
 parser.add_argument(
     "--basismode",
     action="store_true",
     help="use this flag if the input file contains a basis set",
+    default=False,
 )
 parser.add_argument(
     "-v", "--verbose", action="store_true", help="use this flag for extreme output"
@@ -106,7 +113,7 @@ except:
 
 # check if the input file can be opened
 try:
-    file = open(str(args.ifile[0]))
+    file = open(str(args.ifile[0]), "r", encoding="utf-8")
     print("File " + str(args.ifile[0]) + " opened.")
 except:
     print("Could not open file " + str(args.ifile[0]) + ".")
