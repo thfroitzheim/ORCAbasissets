@@ -220,6 +220,84 @@ def xtb_tblite_format_basis(bas):
                     print(f"{coefficients[k][-1]:15.10f}_wp, &", file=ofile)
             print("", file=ofile)
 
+        # print the number of basis functions and primitives for each element
+        print("----------- NUMBER OF BASIS FUNCTIONS -----------", file=ofile)
+        print("\ninteger, parameter :: nshell(max_elem) = [ &", file=ofile)
+        l = 0
+        for i in range(0, len(bas["symb"])):
+            print("Element no " + str(bas["numb"][i]) + " (" + bas["symb"][i] + ")")
+            print("The number basis functions for the desired element is:")
+            print(bas["nbf"][i])
+            if bas["nbf"][i] > 7:
+                tmpbasnbf = 0
+            else:
+                tmpbasnbf = bas["nbf"][i]
+            l += 1
+            if l >= 20:
+                print(f"{tmpbasnbf}, &", file=ofile)
+                l = 0
+                continue
+            elif i >= len(bas["symb"])-1:
+                print(f"{tmpbasnbf}]", file=ofile)
+            elif l <= 1:
+                print(f"& {tmpbasnbf}, ", file=ofile, end="") 
+            else:
+                print(f"{tmpbasnbf}, ", file=ofile, end="")
+        
+        # print the number of primitives for each basis function of each element
+        print("----------- NUMBER OF PRIMITIVES -----------", file=ofile)
+        print("\ninteger, parameter :: n_prim(highest_elem, max_shell) = reshape([&", file=ofile)
+        l = 0
+        for i in range(0, len(bas["symb"])):
+            print("Element no " + str(bas["numb"][i]) + " (" + bas["symb"][i] + ")")
+            print("The number of primitives for the desired element is:")
+            print(bas["npr"][i])
+            for j in range(0, maxshell):
+                if bas["nbf"][i] > 7:
+                    tmpbasnpr = 0
+                else:
+                    if j >= bas["nbf"][i]:
+                        tmpbasnpr = 0
+                    else:
+                        tmpbasnpr = bas["lnpr"][i][j]
+                l += 1
+                if l >= 21:
+                    print(f"{tmpbasnpr}, & ! up to element: {i+1}", file=ofile)
+                    l = 0
+                elif i >= len(bas["symb"])-1 and j >= maxshell-1:
+                    print(f"{tmpbasnpr}]", file=ofile)
+                elif l <= 1:
+                    print(f"& {tmpbasnpr}, ", file=ofile, end="") 
+                else:
+                    print(f"{tmpbasnpr}, ", file=ofile, end="")
+        
+        # print the angular momentum for each basis function of each element
+        print("----------- ANGULAR MOMENTUM -----------", file=ofile)
+        print("\ninteger, parameter :: angmom(max_elem, max_shell) = reshape([&", file=ofile)
+        l = 0
+        for i in range(0, len(bas["symb"])):
+            print("Element no " + str(bas["numb"][i]) + " (" + bas["symb"][i] + ")")
+            print("The angular momentum for the desired element is:")
+            print(bas["angmom"][i])
+            for j in range(0, maxshell):
+                if bas["nbf"][i] > 7:
+                    tmpbasangmom = 0
+                else:
+                    if j >= bas["nbf"][i]:
+                        tmpbasangmom = 0
+                    else:
+                        tmpbasangmom = angmomdict[bas["angmom"][i][j]]
+                l += 1
+                if l >= 21:
+                    print(f"{tmpbasangmom}, & ! up to element: {i+1}", file=ofile)
+                    l = 0
+                elif i >= len(bas["symb"])-1 and j >= maxshell-1:
+                    print(f"{tmpbasangmom}]", file=ofile)
+                elif l <= 1:
+                    print(f"& {tmpbasangmom}, ", file=ofile, end="") 
+                else:
+                    print(f"{tmpbasangmom}, ", file=ofile, end="")
+
 
 
 
