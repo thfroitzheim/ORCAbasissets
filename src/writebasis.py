@@ -4,6 +4,7 @@ different quantum chemistry programs.
 '''
 
 import os
+import numpy as np
 
 # dictionary for relationship between angular momenta
 # in letters ("S","P","D","F") and numbers (0,1,2,3)
@@ -141,4 +142,84 @@ def xtb_tblite_format_basis(bas):
         os.makedirs(path)
         print("Output directory was created!")
 
-    ofile = open("output/basis_xtbsource.txt", "w", encoding="utf-8")
+    # find out the maximal number of primitive functions per basis function
+    # in the whole basis set
+    maxnpr = 0
+    for i in range(0, len(bas["nbf"])):
+        for j in range(0, bas["nbf"][i]):
+            if bas["lnpr"][i][j] > maxnpr:
+                maxnpr = bas["lnpr"][i][j]
+    print("Maximum number of primitive functions per basis function: " + str(maxnpr))
+    maxshell = 7
+
+    # open("output/basis_xtbsource.txt", "w", encoding="utf-8")
+    with open("output/basis_xtbsource.txt", "w", encoding="utf-8") as ofile:
+        # iterate over all elements until Z=86
+        for i in range(0, len(bas["symb"])):
+            if bas["numb"][i] > 57 and bas["numb"][i] < 72:
+                continue
+            print("Element no " + str(bas["numb"][i]) + " (" + bas["symb"][i] + ")")
+            # write the basis set in Fortran format as follows:
+            # create one Fortran array with the exponents
+            # and one with the coefficients for each element
+            # the arrays should have max(nprim) x max(nbf) elements
+            # and are setup with zeros for the unused elements
+            # and using the Fortran "reshape" function to create the
+            # correct dimensions
+            exponents = np.zeros((maxnpr, maxshell), dtype=float)
+            # go through all exponents of the basis functions of the element i
+            m = 0
+            for j in range(0, bas["nbf"][i]):
+                print("Basis function " + str(j) + ":")
+                for k in range(0, bas["lnpr"][i][j]):
+                    exponents[k][j] = bas["exponents"][i][m]
+                    m += 1
+
+            # print the numpy array in nice format to screen
+            print(exponents)
+
+
+            # write the exponents in Fortran format
+            print(f"exponents(:, :, {i+1:2d}) = reshape([&", file=ofile)
+            for j in range(exponents.shape[1]):
+                print("& ", file=ofile, end="")
+                for k in range(exponents.shape[0]-1):
+                    print(f"{exponents[k][j]:15.10f}_wp, ", file=ofile, end="")
+                if j == exponents.shape[1]-1:
+                    print(f"{exponents[k][-1]:15.10f}_wp], (/max_prim, max_shell/))", file=ofile)
+                else:
+                    print(f"{exponents[k][-1]:15.10f}_wp, &", file=ofile)
+            print("", file=ofile)
+        
+        print("----------- COEFFICIENTS -----------")
+        for i in range(0, len(bas["symb"])):
+            if bas["numb"][i] > 57 and bas["numb"][i] < 72:
+                continue
+            print("Element no " + str(bas["numb"][i]) + " (" + bas["symb"][i] + ")")
+            coefficients = np.zeros((maxnpr, maxshell), dtype=float)
+            # go through all coefficients of the basis functions of the element i
+            m = 0
+            for j in range(0, bas["nbf"][i]):
+                print("Basis function " + str(j) + ":")
+                for k in range(0, bas["lnpr"][i][j]):
+                    coefficients[k][j] = bas["coefficients"][i][m]
+                    m += 1
+
+            # print the numpy array in nice format to screen
+            print(coefficients)
+
+            # write the coefficients in Fortran format
+            print(f"coefficients(:, :, {i+1:2d}) = reshape([&", file=ofile)
+            for j in range(coefficients.shape[1]):
+                print("& ", file=ofile, end="")
+                for k in range(coefficients.shape[0]-1):
+                    print(f"{coefficients[k][j]:15.10f}_wp, ", file=ofile, end="")
+                if j == coefficients.shape[1]-1:
+                    print(f"{coefficients[k][-1]:15.10f}_wp], (/max_prim, max_shell/))", file=ofile)
+                else:
+                    print(f"{coefficients[k][-1]:15.10f}_wp, &", file=ofile)
+            print("", file=ofile)
+
+
+
+
