@@ -1,7 +1,7 @@
-'''
+"""
 This module contains functions to write the basis set in the format of
 different quantum chemistry programs.
-'''
+"""
 
 import os
 import numpy as np
@@ -12,9 +12,9 @@ angmomdict = {"S": 0, "P": 1, "D": 2, "F": 3, "G": 4, "H": 5, "I": 6}
 
 
 def orcabasissetcode(bas):
-    '''
+    """
     Write the basis set in the format of the ORCA input file
-    '''
+    """
     # Write the basis set in the format of the ORCA input file
     # The input is a dictionary with the following keys and values:
     path = "output"
@@ -67,9 +67,9 @@ BG[{0:3d}][{1:3d}].d[{2:2d}] ={4:25.10f};\n".format(
 
 
 def orcaecpcode(ecp):
-    '''
+    """
     Write the ECP in the format of the ORCA input file
-    '''
+    """
     # Write the ECP in the format of the ORCA input file
     # The input is a dictionary with the following keys and values:
     path = "output"
@@ -132,9 +132,9 @@ all_ecpname, all_comment, all_citation, all_source );\n".format(
 
 
 def xtb_tblite_format_basis(bas):
-    '''
+    """
     Write the basis set in the format of the xtb tblite file
-    '''
+    """
     path = "output"
     isExist = os.path.exists(path)
     if not isExist:
@@ -155,6 +155,7 @@ def xtb_tblite_format_basis(bas):
     # open("output/basis_xtbsource.txt", "w", encoding="utf-8")
     with open("output/basis_xtbsource.txt", "w", encoding="utf-8") as ofile:
         # iterate over all elements until Z=86
+        print("----------- EXPONENTS -----------")
         for i in range(0, len(bas["symb"])):
             if bas["numb"][i] > 57 and bas["numb"][i] < 72:
                 continue
@@ -170,7 +171,6 @@ def xtb_tblite_format_basis(bas):
             # go through all exponents of the basis functions of the element i
             m = 0
             for j in range(0, bas["nbf"][i]):
-                print("Basis function " + str(j) + ":")
                 for k in range(0, bas["lnpr"][i][j]):
                     exponents[k][j] = bas["exponents"][i][m]
                     m += 1
@@ -178,19 +178,22 @@ def xtb_tblite_format_basis(bas):
             # print the numpy array in nice format to screen
             print(exponents)
 
-
             # write the exponents in Fortran format
             print(f"exponents(:, :, {i+1:2d}) = reshape([&", file=ofile)
+            print(exponents.shape[0], exponents.shape[1])
             for j in range(exponents.shape[1]):
                 print("& ", file=ofile, end="")
-                for k in range(exponents.shape[0]-1):
+                for k in range(exponents.shape[0] - 1):
                     print(f"{exponents[k][j]:15.10f}_wp, ", file=ofile, end="")
-                if j == exponents.shape[1]-1:
-                    print(f"{exponents[k][-1]:15.10f}_wp], (/max_prim, max_shell/))", file=ofile)
+                if j == exponents.shape[1] - 1:
+                    print(
+                        f"{exponents[-1][j]:15.10f}_wp], (/max_prim, max_shell/))",
+                        file=ofile,
+                    )
                 else:
-                    print(f"{exponents[k][-1]:15.10f}_wp, &", file=ofile)
+                    print(f"{exponents[-1][j]:15.10f}_wp, &", file=ofile)
             print("", file=ofile)
-        
+
         print("----------- COEFFICIENTS -----------")
         for i in range(0, len(bas["symb"])):
             if bas["numb"][i] > 57 and bas["numb"][i] < 72:
@@ -212,12 +215,15 @@ def xtb_tblite_format_basis(bas):
             print(f"coefficients(:, :, {i+1:2d}) = reshape([&", file=ofile)
             for j in range(coefficients.shape[1]):
                 print("& ", file=ofile, end="")
-                for k in range(coefficients.shape[0]-1):
+                for k in range(coefficients.shape[0] - 1):
                     print(f"{coefficients[k][j]:15.10f}_wp, ", file=ofile, end="")
-                if j == coefficients.shape[1]-1:
-                    print(f"{coefficients[k][-1]:15.10f}_wp], (/max_prim, max_shell/))", file=ofile)
+                if j == coefficients.shape[1] - 1:
+                    print(
+                        f"{coefficients[-1][j]:15.10f}_wp], (/max_prim, max_shell/))",
+                        file=ofile,
+                    )
                 else:
-                    print(f"{coefficients[k][-1]:15.10f}_wp, &", file=ofile)
+                    print(f"{coefficients[-1][j]:15.10f}_wp, &", file=ofile)
             print("", file=ofile)
 
         # print the number of basis functions and primitives for each element
@@ -237,16 +243,19 @@ def xtb_tblite_format_basis(bas):
                 print(f"{tmpbasnbf}, &", file=ofile)
                 l = 0
                 continue
-            elif i >= len(bas["symb"])-1:
+            elif i >= len(bas["symb"]) - 1:
                 print(f"{tmpbasnbf}]", file=ofile)
             elif l <= 1:
-                print(f"& {tmpbasnbf}, ", file=ofile, end="") 
+                print(f"& {tmpbasnbf}, ", file=ofile, end="")
             else:
                 print(f"{tmpbasnbf}, ", file=ofile, end="")
-        
+
         # print the number of primitives for each basis function of each element
         print("----------- NUMBER OF PRIMITIVES -----------", file=ofile)
-        print("\ninteger, parameter :: n_prim(highest_elem, max_shell) = reshape([&", file=ofile)
+        print(
+            "\ninteger, parameter :: n_prim(highest_elem, max_shell) = reshape([&",
+            file=ofile,
+        )
         l = 0
         for i in range(0, len(bas["symb"])):
             print("Element no " + str(bas["numb"][i]) + " (" + bas["symb"][i] + ")")
@@ -264,16 +273,19 @@ def xtb_tblite_format_basis(bas):
                 if l >= 21:
                     print(f"{tmpbasnpr}, & ! up to element: {i+1}", file=ofile)
                     l = 0
-                elif i >= len(bas["symb"])-1 and j >= maxshell-1:
+                elif i >= len(bas["symb"]) - 1 and j >= maxshell - 1:
                     print(f"{tmpbasnpr}]", file=ofile)
                 elif l <= 1:
-                    print(f"& {tmpbasnpr}, ", file=ofile, end="") 
+                    print(f"& {tmpbasnpr}, ", file=ofile, end="")
                 else:
                     print(f"{tmpbasnpr}, ", file=ofile, end="")
-        
+
         # print the angular momentum for each basis function of each element
         print("----------- ANGULAR MOMENTUM -----------", file=ofile)
-        print("\ninteger, parameter :: angmom(max_elem, max_shell) = reshape([&", file=ofile)
+        print(
+            "\ninteger, parameter :: angmom(max_elem, max_shell) = reshape([&",
+            file=ofile,
+        )
         l = 0
         for i in range(0, len(bas["symb"])):
             print("Element no " + str(bas["numb"][i]) + " (" + bas["symb"][i] + ")")
@@ -291,13 +303,9 @@ def xtb_tblite_format_basis(bas):
                 if l >= 21:
                     print(f"{tmpbasangmom}, & ! up to element: {i+1}", file=ofile)
                     l = 0
-                elif i >= len(bas["symb"])-1 and j >= maxshell-1:
+                elif i >= len(bas["symb"]) - 1 and j >= maxshell - 1:
                     print(f"{tmpbasangmom}]", file=ofile)
                 elif l <= 1:
-                    print(f"& {tmpbasangmom}, ", file=ofile, end="") 
+                    print(f"& {tmpbasangmom}, ", file=ofile, end="")
                 else:
                     print(f"{tmpbasangmom}, ", file=ofile, end="")
-
-
-
-
