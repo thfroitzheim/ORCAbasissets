@@ -4,7 +4,7 @@ This program processes basis sets and ECPs.
 '''
 
 import argparse
-from src.readin import orcabasisformat, orcaecpformat
+from src.readin import orcabasisformat, orcaecpformat, TMgp3basisformat
 from src.writebasis import orcabasissetcode, orcaecpcode, xtb_tblite_format_basis
 
 
@@ -103,7 +103,15 @@ parser.add_argument(
     type=str,
     nargs=1,
     help="the format of the basis set",
-    default="orca",
+    default=["orca"],
+    required=False,
+)
+parser.add_argument(
+    "--iformat",
+    type=str,
+    nargs=1,
+    help="the format of the input basis set",
+    default=["orca"],
     required=False,
 )
 parser.add_argument(
@@ -137,6 +145,8 @@ except:
 
 # check if basisset or ecp mode is given
 
+basismode = False
+ecpmode = False
 if not args.basismode and not args.ecpmode:
     print("No mode given.\nAssuming basis set mode.")
     basismode = True
@@ -155,7 +165,12 @@ if basismode:
     # basis is a dictionary with the following keys and values:
     # symb: list of the symbols of the elements
     # numb: list of the atomic numbers of the element
-    basis = orcabasisformat(file)
+    print("The format of the input file :")
+    print(args.iformat[0])
+    if(args.iformat[0] == "orca"):
+      basis = orcabasisformat(file)
+    elif(args.iformat[0] == "TMgp3"):
+      basis = TMgp3basisformat(file)
     if args.verbose:
         printbasis(basis, desiredelem)
 
@@ -179,7 +194,7 @@ elif ecpmode:
         printecp(ecp, desiredelem)
 
     # if args.format not orca
-    if args.format == "orca":
+    if args.format[0] == "orca":
         orcaecpcode(ecp)
     else:
         print("Format not supported.")

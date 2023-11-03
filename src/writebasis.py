@@ -226,6 +226,102 @@ def xtb_tblite_format_basis(bas):
                     print(f"{coefficients[-1][j]:15.10f}_wp, &", file=ofile)
             print("", file=ofile)
 
+        if("coeff_env" in bas):
+            print("----------- COEFFICIENTS ENVIRONMENT-DEPENDENCE-----------")
+            for i in range(0, len(bas["symb"])):
+                if bas["numb"][i] > 57 and bas["numb"][i] < 72:
+                    continue
+                print("Element no " + str(bas["numb"][i]) + " (" + bas["symb"][i] + ")")
+                coefficients_env = np.zeros((maxnpr, maxshell), dtype=float)
+                # go through all coefficients of the basis functions of the element i
+                m = 0
+                for j in range(0, bas["nbf"][i]):
+                    print("Basis function " + str(j) + ":")
+                    for k in range(0, bas["lnpr"][i][j]):
+                        coefficients_env[k][j] = bas["coeff_env"][i][m]
+                        m += 1
+
+                # print the numpy array in nice format to screen
+                print(coefficients_env)
+
+                # write the coefficients in Fortran format
+                print(f"coefficients_env(:, :, {i+1:2d}) = reshape([&", file=ofile)
+                for j in range(coefficients_env.shape[1]):
+                    print("& ", file=ofile, end="")
+                    for k in range(coefficients_env.shape[0] - 1):
+                        print(f"{coefficients_env[k][j]:15.10f}_wp, ", file=ofile, end="")
+                    if j == coefficients_env.shape[1] - 1:
+                        print(
+                            f"{coefficients_env[-1][j]:15.10f}_wp], (/max_prim, max_shell/))",
+                            file=ofile,
+                        )
+                    else:
+                        print(f"{coefficients_env[-1][j]:15.10f}_wp, &", file=ofile)
+                print("", file=ofile)
+
+        if("env_k1" in bas):
+            print("----------- CHARGE-DEPENDENCE PARAMETER K1 -----------", file=ofile)
+            print(f"\nreal(wp), parameter :: p_k1(86) = ([&", file=ofile)
+            l=0
+            for i in range(0, len(bas["symb"])):
+                print("Element no " + str(bas["numb"][i]) + " (" + bas["symb"][i] + ")")
+                print("The charge-dependence parameter k1 for the desired element is:")
+                print(bas["env_k1"][i])
+                tmpk1 = bas["env_k1"][i]
+                l += 1
+                if l >= 8:
+                    print(f"{tmpk1:15.10f}_wp, &", file=ofile)
+                    l = 0
+                    continue
+                elif i >= len(bas["symb"]) - 1:
+                    print(f"{tmpk1:15.10f}_wp]", file=ofile)
+                elif l <= 1:
+                    print(f"& {tmpk1:15.10f}_wp, ", file=ofile, end="")
+                else:
+                    print(f"{tmpk1:15.10f}_wp, ", file=ofile, end="")
+
+        if("env_k2" in bas):
+            print("----------- CN-DEPENDENCE PARAMETER K2 -----------", file=ofile)
+            print(f"\nreal(wp), parameter :: p_k2(86) = ([&", file=ofile)
+            l=0
+            for i in range(0, len(bas["symb"])):
+                print("Element no " + str(bas["numb"][i]) + " (" + bas["symb"][i] + ")")
+                print("The CN-dependence parameter k2 for the desired element is:")
+                print(bas["env_k2"][i])
+                tmpk1 = bas["env_k2"][i]
+                l += 1
+                if l >= 8:
+                    print(f"{tmpk1:15.10f}_wp, &", file=ofile)
+                    l = 0
+                    continue
+                elif i >= len(bas["symb"]) - 1:
+                    print(f"{tmpk1:15.10f}_wp]", file=ofile)
+                elif l <= 1:
+                    print(f"& {tmpk1:15.10f}_wp, ", file=ofile, end="")
+                else:
+                    print(f"{tmpk1:15.10f}_wp, ", file=ofile, end="")
+
+        if("env_k3" in bas):
+            print("----------- MIXED-DEPENDENCE PARAMETER K3 -----------", file=ofile)
+            print(f"\nreal(wp), parameter :: p_k3(86) = ([&", file=ofile)
+            l=0
+            for i in range(0, len(bas["symb"])):
+                print("Element no " + str(bas["numb"][i]) + " (" + bas["symb"][i] + ")")
+                print("The CN-dependence parameter k3 for the desired element is:")
+                print(bas["env_k3"][i])
+                tmpk1 = bas["env_k3"][i]
+                l += 1
+                if l >= 8:
+                    print(f"{tmpk1:15.10f}_wp, &", file=ofile)
+                    l = 0
+                    continue
+                elif i >= len(bas["symb"]) - 1:
+                    print(f"{tmpk1:15.10f}_wp]", file=ofile)
+                elif l <= 1:
+                    print(f"& {tmpk1:15.10f}_wp, ", file=ofile, end="")
+                else:
+                    print(f"{tmpk1:15.10f}_wp, ", file=ofile, end="")
+
         # print the number of basis functions and primitives for each element
         print("----------- NUMBER OF BASIS FUNCTIONS -----------", file=ofile)
         print("\ninteger, parameter :: nshell(max_elem) = [ &", file=ofile)

@@ -240,3 +240,130 @@ def orcaecpformat(f):
         # end of iteration
 
     return ecpset
+
+
+def TMgp3basisformat(f):
+    '''
+    Reads an modified Turbomole basis set file for GP3.
+    '''
+    # create a dictionary of the elements
+    pesdict = {
+        "symb": [],
+        "numb": [],
+        "startline": [],
+        "endline": [],
+        "nbf": [],
+        "npr": [],
+    }
+    for el in pt.elements:
+        if el.number == 0:
+            continue
+        elif el.number >= 87:
+            break
+        pesdict["symb"].append(el.symbol)
+        pesdict["numb"].append(int(el.number))
+
+    # read the file
+    lines = f.readlines()
+    for i in range(0, len(lines)-1):
+        if ("*" in lines[i].strip() and not "*" in lines[i+1].strip()):
+            pesdict["startline"].append(i + 1)
+        if ("*" in lines[i].strip() and "*" in lines[i+1].strip()):
+            pesdict["endline"].append(i)
+
+    bf = []
+    exponents = []
+    coefficients = []
+    coefficients_env = []
+    # create a dictionary with element symbol, number, nbf, npr, list[angular momenta],
+    #   list[exponents], list[coefficients]
+    basisset = {
+        "symb": [],
+        "numb": [],
+        "nbf": [],
+        "npr": [],
+        "angmom": [],
+        "lnpr": [],
+        "exponents": [],
+        "coefficients": [],
+        "coeff_env": [],
+        "env_k1": [],
+        "env_k2": [],
+        "env_k3": [],
+    }
+    # go through all entries in the dictionary and read the basis functions
+    for i in range(0, len(pesdict["symb"])):
+        print(i,lines[pesdict["startline"][i]])
+        l = 0
+        exptmp = []
+        coefftmp = []
+        coefftmp_env = []
+        bfdict = {"lnpr": [], "angmom": []}  # dictionary for the basis functions
+        # set number of basis functions and primitives to zero for each element
+        pesdict["nbf"].append(0)
+        pesdict["npr"].append(0)
+
+        # charge and CN scaling factors
+        bfdict["env_k1"]=float(lines[pesdict["startline"][i]].strip().split()[1])
+        bfdict["env_k2"]=float(lines[pesdict["startline"][i]].strip().split()[2])
+        bfdict["env_k3"]=float(lines[pesdict["startline"][i]].strip().split()[3])
+
+        for j in range(pesdict["startline"][i], pesdict["endline"][i]):
+            if "s" in lines[j].strip():
+                bfdict["angmom"].append("S")
+            elif "p" in lines[j].strip():
+                bfdict["angmom"].append("P")
+            elif "d" in lines[j].strip():
+                bfdict["angmom"].append("D")
+            elif "f" in lines[j].strip():
+                bfdict["angmom"].append("F")
+            elif "g" in lines[j].strip():
+                print("No support of G or higher functions.")
+                exit()
+            #elif "end" in lines[j].strip():
+            #    break
+            else:
+                continue
+            num = int(lines[j].strip().split()[0])
+            bfdict["lnpr"].append(num)
+            pesdict["nbf"][i] = pesdict["nbf"][i] + 1
+            pesdict["npr"][i] = pesdict["npr"][i] + bfdict["lnpr"][l]
+            for m in range(j + 1, j + bfdict["lnpr"][l] + 1):
+                exptmp.append(float(lines[m].strip().split()[0]))
+                coefftmp.append(float(lines[m].strip().split()[1]))
+                coefftmp_env.append(float(lines[m].strip().split()[2]))
+                
+            l += 1
+
+        # Development printouts
+        # print(pesdict["symb"][i],pesdict["numb"][i],pesdict["nbf"][i],pesdict["npr"][i])
+        #######################
+        exponents.append(exptmp)
+        coefficients.append(coefftmp)
+        coefficients_env.append(coefftmp_env)
+        bf.append(bfdict)
+
+        # Development printouts
+        # print(bf[i])
+        print(exponents[i])
+        print(coefficients[i])
+        #######################
+
+        # fill the dictionary with the basis set information
+        basisset["symb"].append(pesdict["symb"][i])
+        basisset["numb"].append(pesdict["numb"][i])
+        basisset["nbf"].append(pesdict["nbf"][i])
+        basisset["npr"].append(pesdict["npr"][i])
+        basisset["angmom"].append(bf[i]["angmom"])
+        basisset["lnpr"].append(bf[i]["lnpr"])
+        basisset["exponents"].append(exptmp)
+        basisset["coefficients"].append(coefftmp)
+        basisset["coeff_env"].append(coefftmp_env)
+        basisset["env_k1"].append(bf[i]["env_k1"])
+        basisset["env_k2"].append(bf[i]["env_k2"])
+        basisset["env_k3"].append(bf[i]["env_k3"])
+
+        # end of iteration
+
+    return basisset
+
