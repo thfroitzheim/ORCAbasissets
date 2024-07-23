@@ -258,7 +258,7 @@ def TMgp3basisformat(f):
     for el in pt.elements:
         if el.number == 0:
             continue
-        elif el.number >= 87:
+        elif el.number >= 104: # 87
             break
         pesdict["symb"].append(el.symbol)
         pesdict["numb"].append(int(el.number))

@@ -157,8 +157,8 @@ def xtb_tblite_format_basis(bas):
         # iterate over all elements until Z=86
         print("----------- EXPONENTS -----------")
         for i in range(0, len(bas["symb"])):
-            if bas["numb"][i] > 57 and bas["numb"][i] < 72:
-                continue
+            # if bas["numb"][i] > 57 and bas["numb"][i] < 72:
+            #     continue
             print("Element no " + str(bas["numb"][i]) + " (" + bas["symb"][i] + ")")
             # write the basis set in Fortran format as follows:
             # create one Fortran array with the exponents
@@ -183,15 +183,19 @@ def xtb_tblite_format_basis(bas):
             print(exponents.shape[0], exponents.shape[1])
             for j in range(exponents.shape[1]):
                 print("& ", file=ofile, end="")
-                for k in range(exponents.shape[0] - 1):
+                for k in range(exponents.shape[0] - 5):
                     print(f"{exponents[k][j]:15.10f}_wp, ", file=ofile, end="")
+                print(f"{exponents[-5][j]:15.10f}_wp, &", file=ofile)
+                print("& ", file=ofile, end="")
+                for k in range(exponents.shape[0] - 4, exponents.shape[0] - 1):
+                    print(f"{exponents[k][j]:15.10f}_wp, ", file=ofile, end="")    
                 if j == exponents.shape[1] - 1:
                     print(
                         f"{exponents[-1][j]:15.10f}_wp], (/max_prim, max_shell/))",
                         file=ofile,
                     )
                 else:
-                    print(f"{exponents[-1][j]:15.10f}_wp, &", file=ofile)
+                    print(f"{exponents[-1][j]:15.10f}_wp, & ! shell {j+1}", file=ofile)
             print("", file=ofile)
 
         print("----------- COEFFICIENTS -----------")
@@ -215,7 +219,11 @@ def xtb_tblite_format_basis(bas):
             print(f"coefficients(:, :, {i+1:2d}) = reshape([&", file=ofile)
             for j in range(coefficients.shape[1]):
                 print("& ", file=ofile, end="")
-                for k in range(coefficients.shape[0] - 1):
+                for k in range(coefficients.shape[0] - 5):
+                    print(f"{coefficients[k][j]:15.10f}_wp, ", file=ofile, end="")
+                print(f"{coefficients[-5][j]:15.10f}_wp, &", file=ofile)
+                print("& ", file=ofile, end="")
+                for k in range(coefficients.shape[0] - 4, coefficients.shape[0] - 1):
                     print(f"{coefficients[k][j]:15.10f}_wp, ", file=ofile, end="")
                 if j == coefficients.shape[1] - 1:
                     print(
@@ -223,7 +231,7 @@ def xtb_tblite_format_basis(bas):
                         file=ofile,
                     )
                 else:
-                    print(f"{coefficients[-1][j]:15.10f}_wp, &", file=ofile)
+                    print(f"{coefficients[-1][j]:15.10f}_wp, & ! shell {j+1}", file=ofile)
             print("", file=ofile)
 
         if("coeff_env" in bas):
@@ -248,7 +256,11 @@ def xtb_tblite_format_basis(bas):
                 print(f"coefficients_env(:, :, {i+1:2d}) = reshape([&", file=ofile)
                 for j in range(coefficients_env.shape[1]):
                     print("& ", file=ofile, end="")
-                    for k in range(coefficients_env.shape[0] - 1):
+                    for k in range(coefficients_env.shape[0] - 5):
+                        print(f"{coefficients_env[k][j]:15.10f}_wp, ", file=ofile, end="")
+                    print(f"{coefficients_env[-5][j]:15.10f}_wp, &", file=ofile)
+                    print("& ", file=ofile, end="")
+                    for k in range(coefficients_env.shape[0] - 4, coefficients_env.shape[0] - 1):
                         print(f"{coefficients_env[k][j]:15.10f}_wp, ", file=ofile, end="")
                     if j == coefficients_env.shape[1] - 1:
                         print(
@@ -256,12 +268,12 @@ def xtb_tblite_format_basis(bas):
                             file=ofile,
                         )
                     else:
-                        print(f"{coefficients_env[-1][j]:15.10f}_wp, &", file=ofile)
+                        print(f"{coefficients_env[-1][j]:15.10f}_wp, & ! shell {j+1}", file=ofile)
                 print("", file=ofile)
 
         if("env_k1" in bas):
             print("----------- CHARGE-DEPENDENCE PARAMETER K1 -----------", file=ofile)
-            print(f"\nreal(wp), parameter :: p_k1(86) = ([&", file=ofile)
+            print(f"\nreal(wp), parameter :: p_k1(86) = [&", file=ofile)
             l=0
             for i in range(0, len(bas["symb"])):
                 print("Element no " + str(bas["numb"][i]) + " (" + bas["symb"][i] + ")")
@@ -269,8 +281,8 @@ def xtb_tblite_format_basis(bas):
                 print(bas["env_k1"][i])
                 tmpk1 = bas["env_k1"][i]
                 l += 1
-                if l >= 8:
-                    print(f"{tmpk1:15.10f}_wp, &", file=ofile)
+                if l >= 4:
+                    print(f"{tmpk1:15.10f}_wp, & ! -{i+1}", file=ofile)
                     l = 0
                     continue
                 elif i >= len(bas["symb"]) - 1:
@@ -282,7 +294,7 @@ def xtb_tblite_format_basis(bas):
 
         if("env_k2" in bas):
             print("----------- CN-DEPENDENCE PARAMETER K2 -----------", file=ofile)
-            print(f"\nreal(wp), parameter :: p_k2(86) = ([&", file=ofile)
+            print(f"\nreal(wp), parameter :: p_k2(86) = [&", file=ofile)
             l=0
             for i in range(0, len(bas["symb"])):
                 print("Element no " + str(bas["numb"][i]) + " (" + bas["symb"][i] + ")")
@@ -290,8 +302,8 @@ def xtb_tblite_format_basis(bas):
                 print(bas["env_k2"][i])
                 tmpk1 = bas["env_k2"][i]
                 l += 1
-                if l >= 8:
-                    print(f"{tmpk1:15.10f}_wp, &", file=ofile)
+                if l >= 4:
+                    print(f"{tmpk1:15.10f}_wp, & ! -{i+1}", file=ofile)
                     l = 0
                     continue
                 elif i >= len(bas["symb"]) - 1:
@@ -303,7 +315,7 @@ def xtb_tblite_format_basis(bas):
 
         if("env_k3" in bas):
             print("----------- MIXED-DEPENDENCE PARAMETER K3 -----------", file=ofile)
-            print(f"\nreal(wp), parameter :: p_k3(86) = ([&", file=ofile)
+            print(f"\nreal(wp), parameter :: p_k3(86) = [&", file=ofile)
             l=0
             for i in range(0, len(bas["symb"])):
                 print("Element no " + str(bas["numb"][i]) + " (" + bas["symb"][i] + ")")
@@ -311,8 +323,8 @@ def xtb_tblite_format_basis(bas):
                 print(bas["env_k3"][i])
                 tmpk1 = bas["env_k3"][i]
                 l += 1
-                if l >= 8:
-                    print(f"{tmpk1:15.10f}_wp, &", file=ofile)
+                if l >= 4:
+                    print(f"{tmpk1:15.10f}_wp, & ! -{i+1}", file=ofile)
                     l = 0
                     continue
                 elif i >= len(bas["symb"]) - 1:
@@ -340,7 +352,7 @@ def xtb_tblite_format_basis(bas):
                 l = 0
                 continue
             elif i >= len(bas["symb"]) - 1:
-                print(f"{tmpbasnbf}]", file=ofile)
+                print(f"{tmpbasnbf}], shape(ang_shell))", file=ofile)
             elif l <= 1:
                 print(f"& {tmpbasnbf}, ", file=ofile, end="")
             else:
@@ -349,7 +361,7 @@ def xtb_tblite_format_basis(bas):
         # print the number of primitives for each basis function of each element
         print("----------- NUMBER OF PRIMITIVES -----------", file=ofile)
         print(
-            "\ninteger, parameter :: n_prim(highest_elem, max_shell) = reshape([&",
+            "\ninteger, parameter :: n_prim(max_elem, max_shell) = reshape([&",
             file=ofile,
         )
         l = 0
@@ -370,7 +382,7 @@ def xtb_tblite_format_basis(bas):
                     print(f"{tmpbasnpr}, & ! up to element: {i+1}", file=ofile)
                     l = 0
                 elif i >= len(bas["symb"]) - 1 and j >= maxshell - 1:
-                    print(f"{tmpbasnpr}]", file=ofile)
+                    print(f"{tmpbasnpr}], shape(n_prim))", file=ofile)
                 elif l <= 1:
                     print(f"& {tmpbasnpr}, ", file=ofile, end="")
                 else:
@@ -379,7 +391,7 @@ def xtb_tblite_format_basis(bas):
         # print the angular momentum for each basis function of each element
         print("----------- ANGULAR MOMENTUM -----------", file=ofile)
         print(
-            "\ninteger, parameter :: angmom(max_elem, max_shell) = reshape([&",
+            "\ninteger, parameter :: ang_shell(max_elem, max_shell) = reshape([&",
             file=ofile,
         )
         l = 0
@@ -400,7 +412,7 @@ def xtb_tblite_format_basis(bas):
                     print(f"{tmpbasangmom}, & ! up to element: {i+1}", file=ofile)
                     l = 0
                 elif i >= len(bas["symb"]) - 1 and j >= maxshell - 1:
-                    print(f"{tmpbasangmom}]", file=ofile)
+                    print(f"{tmpbasangmom}], shape(ang_shell))", file=ofile)
                 elif l <= 1:
                     print(f"& {tmpbasangmom}, ", file=ofile, end="")
                 else:
